@@ -1,0 +1,15 @@
+---
+title: "Assignment7"
+author: "xiaoyi"
+date: "13/11/2021"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(Stat2Data)
+
+df<-data("Hawks")
+df
+```
+
