@@ -5,5 +5,137 @@ date: "10/11/2021"
 output: html_document
 ---
 
+# Section A
+```{r}
+library(tidyverse)
+```
 
+## A.1
+```{r}
+finance_data_original<-read.csv("finance_data_EMATM0061.csv", header = TRUE)
+finance_data_original
+num_of_rows<-nrow(finance_data_original)
+num_of_cols<-ncol(finance_data_original)
+num_of_rows
+num_of_cols
+```
+This data frame have 1051 rows, 30 columns
+
+## A.2
+```{r}
+finance_data<-finance_data_original%>%
+    select(state_year_code, Details.Education.Education.Total, Details.Health.Health.Total.Expenditure, Details.Transportation.Highways.Highways.Total.Expenditure, Totals.Revenue, Totals.Expenditure)%>%
+  rename(education_expenditure = Details.Education.Education.Total,
+         health_expenditure = Details.Health.Health.Total.Expenditure,
+         transport_expenditure = Details.Transportation.Highways.Highways.Total.Expenditure,
+         totals_revenue = Totals.Revenue,
+         totals_expenditure = Totals.Expenditure)
+
+finance_data
+
+finance_data%>%
+  select(state_year_code, education_expenditure, health_expenditure)%>%
+  head(5)
+```
+
+## A.3
+```{r}
+finance_data<-finance_data%>%
+  mutate(totals_savings = totals_revenue - totals_expenditure)
+
+finance_data
+
+finance_data%>%select(state_year_code, totals_revenue, totals_expenditure, totals_savings)%>%
+  head(3)
+```
+## A.4
+```{r}
+finance_data<-finance_data%>%
+  separate(col = state_year_code, into = c('state','year'), sep = '__')%>%
+  mutate(state = str_to_title(state))
+  
+finance_data%>%
+  select(state, year, totals_revenue, totals_expenditure, totals_savings)%>%
+  head(3)
+
+```
+## A.5
+```{r}
+
+df<-finance_data%>%
+  filter(state == 'Kentucky'| state =='Mississippi' |state =='Montana' |state =='Louisiana')%>%
+  mutate(totals_revenue = totals_revenue/1000000)
+
+df
+
+df%>%
+  ggplot(aes(x = as.numeric(year), y = totals_revenue, color = state, linetype = state))+
+  geom_smooth()+
+  labs(x = 'Year',y = 'Revenue (millions $)')+
+  theme_bw()
+```
+## A.6
+```{r}
+#rounds that number down to the nearest multiple of 10
+get_decade<-function(number){
+  floor(number/10) * 10
+}
+
+finance_data<-finance_data%>%
+  mutate(decade = map_dbl(.x = as.numeric(year),.f = get_decade))
+
+finance_data
+
+finance_data%>%
+  filter(decade == 2000)%>%
+  group_by(state)%>%
+  summarise(mean_average_savings = mean(totals_savings, na.rm = 1))%>%
+  select(state, mean_average_savings)%>%
+  slice_max(order_by = mean_average_savings, n = 3)
+
+```
+Texas, Ohio, California had the highest mean-average savings
+
+```{r}
+alaska_summary<-finance_data%>%
+  filter(state == 'Alaska')%>%
+  group_by(decade)%>%
+  summarise(ed_mn = mean(education_expenditure, na.rm = 1),
+            ed_md = median(education_expenditure, na.rm = 1),
+            he_mn = mean(health_expenditure, na.rm = 1),
+            he_md = median(health_expenditure, na.rm = 1),
+            tr_mn = mean(transport_expenditure, na.rm = 1),
+            td_mn = median(transport_expenditure, na.rm = 1)
+            )
+
+alaska_summary
+```
+## A.8
+```{r}
+impute_by_median<-function(x){
+  md<-median(x,na.rm = 1) #compute the median of x
+  impute_f<-function(y){
+    if(is.na(y)){
+      return (md) # if y is 'NA' replace with median
+    }else{
+      return(y) # otherwise leave in place
+    }
+  }
+  return(map_dbl(x,impute_f)) # apply the map function to impute across vector
+}
+
+idaho_2000<-finance_data%>%
+  filter(state == 'Idaho' & decade == '2000')%>%
+  select(!c('state', 'decade'))
+
+idaho_2000
+
+idaho_2000_imputed<-idaho_2000%>%
+  mutate(across(!year,impute_by_median))
+  
+
+idaho_2000_imputed%>%
+  select(year, health_expenditure, education_expenditure, totals_savings)%>%
+  head(5)
+```
 
