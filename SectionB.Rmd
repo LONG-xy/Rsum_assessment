@@ -1,0 +1,222 @@
+---
+title: "SectionB"
+author: "xiaoyi"
+date: "16/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# SectionB
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+## B.1
+### (a)
+```{r}
+c_prob_person_given_alarm<-function(p0,p1,q){
+  phi = p1*q/(p0*(1-q)+p1*q)
+  return (phi)
+}
+```
+### (b)
+Let A denotes the event that the sensor makes a sound, let B denotes the event that no person present, let C denotes the event that at least one person present.
+we can express the events in the question as below:
+$P(A\mid B)=p_{0}$ ,$P(A\mid C)=p_{1}$,$P(C)=q$,$P(C\mid A)=\varPhi$
+we know that Bayes theorem formula is $ \frac{P(A\mid B)=P(B\mid A)\cdotp(A)}{P(B)}$
+so we have the following formulas based on the questions:
+$P(A\mid C)=P(C\mid A)\cdot \frac{P(A)}{P(C)} \Rightarrow P(C\mid A)=\frac{p_{1}q}{P(A)}$
+$P(B\mid A)=P(A\mid B)\cdot \frac{P(B)}{P(A)} \Rightarrow p_{0}\cdot \frac{1-q}{P(A)}$
+because the complement of event 'no person' is the event  'at least one person', we get this formula
+$P(B\mid C)=1-P(A\mid C)$
+we can calculate $P(A)=p_{0}(1-q)+p_{1}q$
+hence,
+$\varPhi=P(C\mid A)=\frac{p_{1}q}{P(A)}=\frac{p_{1}q}{p_{0}(1-q)+p_{1}q}$
+
+```{r}
+p0<- 0.05
+p1<- 0.95
+q<- 0.1
+c_prob_person_given_alarm(p0,p1,q)
+```
+### (c)
+```{r}
+p0<-0.05
+p1<-0.95
+q<- seq(0,1,0.001)
+result = data.frame(phi = c_prob_person_given_alarm(p0,p1,q))
+#result 
+ggplot(data = result, aes(x = q, y = phi))+
+  geom_line()+
+  labs(y = expression(Phi))+
+  theme_bw()
+```
+
+## B.2
+### (a)
+\[
+\begin{equation}
+  p_{X}(x) =
+  \begin{cases}
+    1-\alpha-\beta-\gamma &\text{if } x = 0 \\
+    \alpha & \text{if }x = 1 \\
+    \beta & \text{if }x = 2  \\
+    \gamma & \text{if }x = 5 \\
+    0  &\text{otherwise}
+  \end{cases}
+\end{equation}
+\]
+
+### (b)
+\[
+\mathbb{E}(X)= \sum_{x\in \mathbb{R}} x\cdot p_{X}(x) 
+= 1\cdot \alpha+2\cdot \beta+5\cdot \gamma+0\cdot (1-\alpha-\beta-\gamma)+
+\sum_{x\in \mathbb{R}\backslash\text{{0,1}}}x \cdot p_{X}(x)
+=\alpha+2\beta+5\gamma
+\]
+
+### (c)
+\[
+Var(X)=\mathbb{E}[\{X-\mathbb{E}(X)\}^2]=
+\sum_{x\in \mathbb{R}} p_{X}(x)\cdot (x-(\alpha +2\beta+ 5\gamma))^2
+=\mathbb{E}[X^2]-\mathbb{E}[X]^2
+=-\alpha^2-4\alpha\beta-10\alpha\gamma-4\beta^2-20\beta\gamma-25\gamma^2+\alpha+4\beta+25\gamma
+\]
+
+
+### (d)
+\[
+\mathbb{E}(\bar X)=\mathbb{E}(\frac{1}{n}\sum_{i=1}^{n}X_{i})=\frac{1}{n}\cdot \sum_{i=1}^{n}\mathbb{E}(X_{i})
+=\frac{1}{n}\sum_{i=1}^{n}(\alpha+2\beta+5\gamma)=\alpha+2\beta+5\gamma
+\]
+
+### (e)
+\[
+Var(\bar X)=Var(\frac{1}{n}\sum_{i=1}^{n}X_{i})=(\frac{1}{n})^2\cdot \sum_{i=1}^{n}Var(X_{i})=\frac{-\alpha^2-4\alpha\beta-10\alpha\gamma-4\beta^2-20\beta\gamma-25\gamma^2+\alpha+4\beta+25\gamma}{n}
+\]
+
+### （d)
+
+```{r}
+
+var<-function(a,b,r)
+  {
+  c=(-a^2-4*a*b-10*a*r-4*b^2-20*b*r-25*r^2+a+4*b+25*r)
+  return(c)
+}
+
+b=var(0.1,0.2,0.3)
+
+
+```
+
+
+```{r}
+# Assignment5
+# use the uniform distribution to simulate data from the discrete random variable
+
+sample_X_0125<-function(n,alpha,beta,gamma){
+  sample_X<-data.frame(U = runif(n))%>%
+    mutate(X = case_when(
+      (0 <= U)&(U < alpha)~1,
+      (alpha <= U)&(U < alpha+beta)~2,
+      (alpha+beta <= U)&(U < alpha+beta+gamma)~5,
+      (alpha+beta+gamma <= U)&(U <= 1)~0))%>%
+    pull(X)
+  return (sample_X)
+}
+```
+### (e)
+```{r}
+set.seed(1006)
+n<-100000
+alpha<-0.1
+beta<-0.2
+gamma<-0.3
+sample_X<-sample_X_0125(n,alpha,beta,gamma)
+#sample_X
+mean(sample_X)
+var(sample_X)
+```
+I observe the value for $\bar X$is 1.99478, the value for sample variance is 4.391097, this is not exactly the same as expected in question(b)and(c).
+Here are the reasons:
+Based on my answer to question(b), we have $\mathbb{E}(X)=\alpha+2\beta+5\gamma=2$, Moreover, in light of the law of large numbers of n, we expect the sample average to be close to the expectation for large samples of independent and identically
+distributed random variables.
+
+By question (c) we have Var(X) = $=-\alpha^2-4\alpha\beta-10\alpha\gamma-4\beta^2-20\beta\gamma-25\gamma^2+\alpha+4\beta+25\gamma=4.4$. Hence, the
+sample variance is close to the population variance.
+
+### (h)
+```{r}
+set.seed(1006)
+trial<-seq(10000)
+n<-100
+
+alpha<-0.1
+beta<-0.2
+gamma<-0.3
+simulation_df<-data.frame(trail)%>%
+  mutate(sample = map(.x=trial, .f = ~sample_X_0125(n,alpha,beta,gamma)))%>%
+  mutate(sample_mean = map_dbl(.x=sample, .f = mean))
+
+
+```
+```{r}
+simulation_df%>%head(5)
+```
+
+
+### (i)
+```{r}
+simulation_df%>%
+  
+
+ggplot()+
+  ggtitle("The histogram of sample mean") +
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5))+
+  geom_histogram(aes(x=sample_mean),binwidth = 0.02)
+```
+### (j)
+```{r}
+sample_mean_expectation<-round(mean(simulation_df$sample_mean),digits = 4)
+sample_mean_variance<-round(var(simulation_df$sample_mean),digits = 4)
+sample_mean_expectation
+sample_mean_variance
+```
+The numerical value of the expectation $\mathbb{E}(\bar X)$ is 1.9988, the numerical value of the variance $Var(\bar X)$ is 0.0444.
+
+### (k)
+```{r}
+mu<-sample_mean_expectation
+sigma<-sqrt(sample_mean_variance)
+x_min<-mu-4*sigma
+x_max<-mu+4*sigma
+inc<-0.0001
+rescaled_gaussian_df<-data.frame(x=seq(x_min,x_max,inc))%>%
+  mutate(pdf=200*map_dbl(.x=x,.f=~dnorm(x=.x,mean=mu,sd=sigma)))
+# 200 or 10000?
+
+colors<-c("Gaussian pdf"="red","sample_mean_histogram"="blue")
+fill<-c("Gaussian pdf"="white","sample_mean_histogram"="white")
+
+
+ggplot()+
+  geom_histogram(data=simulation_df,
+                 aes(x=sample_mean,colour = "sample_mean_histogram",fill = "sample_mean_histogram"),
+                 binwidth = 0.02,size = 0.3)+
+  geom_line(data=rescaled_gaussian_df,
+            aes(x,y=pdf,color="Gaussian pdf"),size=1)+
+  scale_color_manual(name = "", values=colors)+
+  scale_fill_manual(name = "", values=fill)+
+  theme_bw()
+```
+
+### (l)
+the shape of this histogram essentially  matches the rescaled version of the probability density function of a Gaussian random(when scale factor is 200)
+
+The central limit theorem (CLT) states that the distribution of sample means approximates a gaussian distribution as the sample size gets larger, regardless of the population's distribution.
