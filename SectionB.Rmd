@@ -220,3 +220,92 @@ ggplot()+
 the shape of this histogram essentially  matches the rescaled version of the probability density function of a Gaussian random(when scale factor is 200)
 
 The central limit theorem (CLT) states that the distribution of sample means approximates a gaussian distribution as the sample size gets larger, regardless of the population's distribution.
+
+## B.3
+### (a)
+population mean
+choosing y=$\lambda$x
+\[
+E[X]=\int_{0}^{\infty}x\lambda e^{-\lambda x}dx
+=\frac{1}{\lambda}\int_{0}^{\infty}ye^{-y}dy
+=\frac{1}{\lambda}\Bigg[-e^{-y}-ye^{-y}\Bigg]_{0}^{\infty}
+=\frac{1}{\lambda}
+\]
+Not this
+\[=\lambda\bigg [\frac{-xe^{-\lambda x}}{\lambda}\bigg|_{0}^{\infty} +
+\frac{1}{\lambda}\int_{0}^{\infty}e^{-\lambda x}dx \bigg]
+=\lambda\bigg[ 0+\frac{1}{\lambda} \frac{-e^{-\lambda x}}{\lambda}\bigg|_{0}^{\infty}\bigg]
+=\lambda \frac{1}{\lambda^2}
+=\frac{1}{\lambda}\]
+Hence, the mean of the population for an exponential random variable X is $\frac{1}{\lambda}$.
+
+population variance
+The second moment of the Exponential(λ) distribution is given by
+\[
+E[X^2]=\int_{0}^{\infty}x^2\lambda e^{-\lambda x}
+=\frac{1}{\lambda^2} \int_{0}^{\infty}y^2e^{-y}dy
+=\frac{1}{\lambda^2}\Bigg[-2e^{-y}-2ye^{-y}-y^2e^{-y}\Bigg]_{0}^{\infty}
+=\frac{2}{\lambda^2}
+\]
+The variance of the continuous random variable, X is calculated as
+\[Var(X)=E(X^2)-E(X)^2\]
+then, substituting the value of mean and the second moment of the exponential distribution
+\[Var(X)=\frac{2}{\lambda^2}-\frac{1}{\lambda^2}=\frac{1}{\lambda^2}\]
+Thus, the variance of the population for an exponential random variable X is $\frac{1}{\lambda^2}$
+
+### (b)
+the cumulative distribution function for exponential random variables
+for x > 0,
+\[F(x)=P(X\leq x)
+=\int_{0}^{x}f(t)dt
+=\int_{0}^{x}\lambda e^{-\lambda t}dt
+=-e^{-\lambda t}\bigg|_{0}^{x}
+=1-e^{-\lambda x}
+\]
+for all values of $x$, the cumulative distribution function is
+\[F(x)=
+\begin{equation}
+  \begin{cases}
+  0&\text{if } x \leq 0 \\
+  1-e^{-\lambda x} &\text{if } x > 0 \\
+  \end{cases}
+\end{equation}
+\]
+
+The quantile function (inverse cumulative distribution function) for exponential random variables
+for 0 ≤ p < 1
+\[
+Q_{X}(p)=F_{X}^{-1}(x)
+\]
+This can be derived by rearranging cumulative distribution function function
+\[p=1-e^{-\lambda x}\]
+\[e^{-\lambda x}=1-p\]
+\[-\lambda x=\ln (1-p)\]
+\[x=-\frac{\ln(1-p)}{\lambda}\]
+
+### (c)
+The likelihood function is
+\[L(\lambda;x_{1},...,x_{n})
+=\prod_{i=1}^{n}f(x_{i};\lambda)
+=\prod_{i=1}^{n} \lambda e^{-\lambda x_{i}}
+=\lambda^n e^{-\lambda \sum_{i=i}^{n}x_{i}}\]
+The log-likelihood function is 
+\[l(\lambda;x_{1},...,x_{n})
+=nln(\lambda)-\lambda \sum_{i=1}^{n}x_{i}
+\]
+
+The maximum estimator is obtained as a solution of the maximization problem
+\[\hat{\lambda_{n}}=\operatorname*{argmin}_\lambda l(\lambda;x_{1},...,x_{n})\]
+The derivative of the log-likelihood
+\[\frac{d}{d\lambda}l(\lambda;x_{1},...,x_{n})=
+\frac{d}{d\lambda}\Big(nln(\lambda)-\lambda \sum_{i=1}^{n}x_{i}\Big)
+=\frac{n}{\lambda}-\sum_{i=1}^{n}x_{i}
+\]
+when it equals zero, we obtain 
+\[\lambda = \frac{n}{\sum_{i=1}^{n}x_{i}}
+\]
+
+Hence, the maximum likelihood estimate  $ \hat{\lambda}_{MLE} $ for $\lambda_{0}$ is$\frac{n}{\sum_{i=1}^{n}x_{i}}$
+
+
+
