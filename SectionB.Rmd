@@ -139,9 +139,12 @@ beta<-0.2
 gamma<-0.3
 sample_X<-sample_X_0125(n,alpha,beta,gamma)
 
+sample_X
+
 mean(sample_X)
-var(sample_X)
+stats::var(sample_X)#?
 ```
+
 I observe the value for $\bar X$is 1.99478, the value for sample variance is 4.391097, this is not exactly the same as expected in question(b)and(c).
 Here are the reasons:
 Based on my answer to question(b), we have $\mathbb{E}(X)=\alpha+2\beta+5\gamma=2$, Moreover, in light of the law of large numbers of n, we expect the sample average to be close to the expectation for large samples of independent and identically
@@ -159,7 +162,7 @@ n<-100
 alpha<-0.1
 beta<-0.2
 gamma<-0.3
-simulation_df<-data.frame(trail)%>%
+simulation_df<-data.frame(trial)%>%
   mutate(sample = map(.x=trial, .f = ~sample_X_0125(n,alpha,beta,gamma)))%>%
   mutate(sample_mean = map_dbl(.x=sample, .f = mean))
 
